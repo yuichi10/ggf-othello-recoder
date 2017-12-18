@@ -123,6 +123,7 @@ func GetHand(place string) Hand {
 		return *hand
 	}
 	if len(place) != 2 {
+		fmt.Println(place)
 		panic("SOMTEHING ERROR HAPPEN AT GETPOINT")
 	}
 	hand.Y = int(place[0] - 64)
@@ -247,8 +248,19 @@ func (r *OthelloRecode) ShowGame() {
 	}
 }
 
-func (r *OthelloRecode) RecodeGame() {
-
+func (r *OthelloRecode) RecodeGame(recoder *Recoder) {
+	fmt.Println("Start Recode")
+	for i, val := range r.WHand {
+		recoder.Write("black", r.BHand[i].Y, r.BHand[i].X, r.BHand[i].Pass, r.Board)
+		if !r.BHand[i].Pass {
+			r.SetHand(r.BHand[i], BLACK)
+		}
+		recoder.Write("white", r.WHand[i].Y, r.WHand[i].X, r.WHand[i].Pass, r.Board)
+		if !val.Pass {
+			r.SetHand(val, WHITE)
+		}
+	}
+	recoder.WriteToFile(r.Winner())
 }
 
 func main() {
@@ -257,15 +269,18 @@ func main() {
 		panic(err)
 	}
 	scanner := bufio.NewScanner(file)
+	recoder := NewRecoder("Othello.01e4.ggf")
+	defer recoder.Close()
 	for scanner.Scan() {
 		recode := ReadRecode(strings.NewReader(scanner.Text()))
+		if recode.BO != "8 -------- -------- -------- ---O*--- ---*O--- -------- -------- -------- *" {
+			continue
+		}
 		recode.InitBoard()
-		recode.ShowBoard()
+		// recode.ShowBoard()
 		recode.BlackRecode()
 		recode.WhiteRecode()
-		fmt.Println(recode.WHand)
-		fmt.Println(recode.BHand)
-		recode.ShowGame()
-		time.Sleep(3 * time.Second)
+		// recode.ShowGame()
+		recode.RecodeGame(recoder)
 	}
 }

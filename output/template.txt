@@ -1,0 +1,12 @@
+Winner 
+(string)turn putY putX (boolean)PASS (int)board_into  
+# 1 BLACK
+# 2 WHITE
+# 3 BLANK
+Winner WHITE
+black  4 2  false  1 2 3......2  
+white  4 2  false  1 2 3......2  
+
+Winner BLACK
+black  4 2  false  1 2 3......2 
+white  0 0  true   1 2 2......3  
