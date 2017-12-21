@@ -13,9 +13,9 @@ ggfファイルからオセロのデータを取り出す。
 3つの数字
 ```
 Y X pass
-4 6  2
+4 6  0
 ```
-pass は1がtrue 2がfalse
+pass は1がtrue 0がfalse
 
 # Usage
 ```
