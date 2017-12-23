@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/yuichi10/matrix"
 )
@@ -42,17 +41,18 @@ func (r *Recoder) Write(turn string, y, x int, pass bool, board *matrix.Matrix) 
 	if turn != writeTurn {
 		return
 	}
-	b := ""
-	for _, val := range board.RawMatrix() {
-		b = fmt.Sprintf("%v %v", b, val)
-	}
-	strings.Trim(b, " ")
+	b := board.TextAsOneLine(" ")
 	r.bufX.WriteString(fmt.Sprintf("%v\n", b))
-	passNum := 0
+
+	yBoard := matrix.New(1, 65, nil)
 	if pass {
-		passNum = 1
+		yBoard.Set(1, 65, 1.0)
+		fmt.Println("PASS")
+	} else {
+		yBoard.Set(1, (y-1)*8+x, 1.0)
 	}
-	r.bufY.WriteString(fmt.Sprintf("%v %v %v\n", y, x, passNum))
+
+	r.bufY.WriteString(fmt.Sprintf("%s\n", yBoard.TextAsOneLine(" ")))
 }
 
 func (r *Recoder) WriteToFile(winner string) {
