@@ -47,7 +47,6 @@ func (r *Recoder) Write(turn string, y, x int, pass bool, board *matrix.Matrix) 
 	yBoard := matrix.New(1, 65, nil)
 	if pass {
 		yBoard.Set(1, 65, 1.0)
-		fmt.Println("PASS")
 	} else {
 		yBoard.Set(1, (y-1)*8+x, 1.0)
 	}

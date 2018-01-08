@@ -5,10 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/yuichi10/matrix"
 )
@@ -68,12 +70,12 @@ func ReadRecode(raw io.Reader) (recode *OthelloRecode) {
 	for {
 		key, err := reader.ReadString('[')
 		if err != nil {
-			fmt.Println(err)
+			// fmt.Println(err)
 			break
 		}
 		body, err := reader.ReadString(']')
 		if err != nil {
-			fmt.Println(err)
+			// fmt.Println(err)
 			break
 		}
 		switch key[:len(key)-1] {
@@ -109,6 +111,7 @@ func ReadRecode(raw io.Reader) (recode *OthelloRecode) {
 }
 
 func (r *OthelloRecode) RecodeGame(recoder *Recoder) {
+	fmt.Println(len(r.WHand), " ", len(r.BHand))
 	for i, val := range r.WHand {
 		recoder.Write("black", r.BHand[i].Y, r.BHand[i].X, r.BHand[i].Pass, r.Board)
 		if !r.BHand[i].Pass {
@@ -158,28 +161,27 @@ func initArgument() error {
 }
 
 func recodeFileName() string {
-	paths := strings.Split(writeFile, "/")
-	return paths[len(paths)-1]
+	if writeFile != "" {
+		paths := strings.Split(writeFile, "/")
+		return paths[len(paths)-1]
+	}
+	return fmt.Sprintf("%v", time.Now().Unix())
 }
 
 func dataFileName(base string) (string, string) {
 	return fmt.Sprintf("%s_%s_%s_X", base, writeWinner, writeTurn), fmt.Sprintf("%s_%s_%s_Y", base, writeWinner, writeTurn)
 }
 
-func main() {
-	flag.Parse()
-	err := initArgument()
-	if err != nil {
-		log.Fatal(err)
-	}
-	file, err := os.Open(writeFile)
+func recodeFile(recoder *Recoder, filePath string) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	scanner := bufio.NewScanner(file)
-	recoder := NewRecoder(dataFileName(recodeFileName()))
-	defer recoder.Close()
+	count := 0
 	for scanner.Scan() {
+		fmt.Printf("Start recode: %d\n", count)
+		count++
 		recode := ReadRecode(strings.NewReader(scanner.Text()))
 		if recode.BO != "8 -------- -------- -------- ---O*--- ---*O--- -------- -------- -------- *" {
 			continue
@@ -190,5 +192,36 @@ func main() {
 		recode.WhiteRecode()
 		// recode.ShowGame()
 		recode.RecodeGame(recoder)
+	}
+}
+
+func main() {
+	flag.Parse()
+	fmt.Println(writeFile)
+	err := initArgument()
+	if err != nil {
+		log.Fatal(err)
+	}
+	recoder := NewRecoder(dataFileName(recodeFileName()))
+	defer recoder.Close()
+
+	fInfo, err := os.Stat(writeFile)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println([]byte("\n\r\r\n"))
+
+	if fInfo.IsDir() {
+		files, err := ioutil.ReadDir(writeFile)
+		if err != nil {
+			panic(err)
+		}
+		for _, file := range files {
+			fmt.Printf("Recode file %v\n", file.Name())
+			recodeFile(recoder, filepath.Join(writeFile, file.Name()))
+		}
+	} else {
+		recodeFile(recoder, writeFile)
 	}
 }

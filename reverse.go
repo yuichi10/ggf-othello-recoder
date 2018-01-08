@@ -32,16 +32,23 @@ func (r *OthelloRecode) InitBoard() {
 
 func GetHand(place string) Hand {
 	hand := new(Hand)
-	if place == "pass" {
+	place = strings.ToUpper(place)
+	if place == "PASS" || place == "PA" {
 		hand.Pass = true
 		return *hand
 	}
-	if len(place) != 2 {
-		fmt.Println(place)
-		panic("SOMTEHING ERROR HAPPEN AT GETPOINT")
-	}
+	// if len(place) != 2 {
+	// 	panic("SOMTEHING ERROR HAPPEN AT GETPOINT")
+	// }
 	hand.Y = int(place[0] - 64)
 	hand.X = int(place[1] - 48)
+	if hand.Y > 8 || hand.X > 8 {
+		fmt.Println(place)
+		fmt.Println(hand.Y, " ", hand.X)
+		fmt.Println("f: ", 'f'-64)
+		fmt.Println("4: ", '4'-48)
+		panic("Should be less 8")
+	}
 	return *hand
 }
 
