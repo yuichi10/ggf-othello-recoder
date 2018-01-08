@@ -20,9 +20,7 @@ pass は1がtrue 0がfalse
 ```
 ggf -f sample.ggf -w white -t white
 ```
--f ファイルを指定
-
--d ファイルの入ってるディレクトリを指定
+-f ファイルもしくはディレクトリを指定
 
 -w 勝者を指定
 
